@@ -6,11 +6,15 @@ import "gl"
 import "glfw"
 import "gfx"
 import "mat"
+import "gui"
+
 
 // TODO : use callbacks instead of hardcoded if/else (compile only used type)
 // TODO : user controls
 // TODO : json serialization
-
+var intro04Texture gfx.TextureId = gui.InvalidTexture()
+var intro04Anim gui.AnimationId = gui.InvalidAnimation()
+var Intro04 gui.PictureId
 // Constants ...
 var GUI_INVALID     i32 =  0
 var GUI_CONTROL     i32 =  1
@@ -246,7 +250,14 @@ func Init(width i32, height i32, dataDir str) {
 	FontAddSize(g_awesomeBoldFont, g_fontSizeSmall)
 	FontAddSize(g_awesomeBoldFont, g_fontSizeText)
 	FontAddSize(g_awesomeBoldFont, g_fontSizeHeader)
-
+	intro04Texture = gfx.TextureCreate(sprintf("%s/textures/intro_textures/intro04.png", app.DataDir()),gfx.FORMAT_R8_G8_B8_A8, 0, 0, -1, true,false)
+    intro04Anim = gui.AnimationCreateFromTexture(intro04Texture)
+    Intro04 = gui.PictureId = gui.PictureCreate("intro04Texture")
+	gui.ControlAddChild(g_hotScreen.base, Intro04.base)
+	gui.ControlSetAutoscale(Intro04.base, gui.AUTOSCALE)
+	gui.PictureSetAlign(Intro04, gui.ALIGN_CENTER)
+	gui.PictureSetAnimation(Intro04, intro04Anim, false, 30)
+	gui.PictureSetAlpha(Intro04, true)
 
 	// textures
 	g_skycoinTexture = gfx.TextureCreate(sprintf("%stextures/Skycoin-Cloud-BW-Vertical-on_black@2x.png", dataDir), gfx.FORMAT_R8_G8_B8_A8, 0, 0, -1, true, false)
@@ -407,14 +418,14 @@ func ProcessEvent(event *app.Event) () {
 		currentScreen = modalScreen
 		var floating bool = g_screens[modalScreen.screen].floating
 		if (ScreenProcessEvent(modalScreen, event) == app.EVENT_UNUSED) {
-			if ((key == app.KEYCODE_ESCAPE && action == app.KEY_PRESS) ||
+			/*if ((key == app.KEYCODE_ESCAPE && action == app.KEY_PRESS) ||
 				(button == app.BUTTON_LEFT && buttonAction == app.MOUSE_PRESS && floating == true)) {
 				ScreenHideModal(modalScreen)
 				g_hotScreen = g_currentScreen
 			} else {
 				currentScreen = modalScreen
 				g_hotScreen = modalScreen
-			}
+			}*/
 		}
 	} else if (IsValidScreen(g_currentScreen)) {
 		g_hotScreen = g_currentScreen
@@ -426,10 +437,11 @@ func ProcessEvent(event *app.Event) () {
 			if (state == STATE_OPENED || state == STATE_SHOWING) {
 				if (key == app.KEYCODE_ESCAPE && action == app.KEY_PRESS && mods == app.MOD_NONE) {
 					g_screens[screen].paused = true
-					var onExit ScreenId = g_screens[screen].on_exit
-					if (IsValidScreen(onExit) == true) {
-						ScreenShow(onExit)
-					}
+					gui.ControlSetBounds(Intro04.base, v4.make(0.0, 0.0, gfx.gfx_width, gfx.gfx_height))
+					gui.ControlSetAlign(Intro04.base, gui.ALIGN_CENTER)
+					gui.PictureSetAlign(Intro04, gui.ALIGN_CENTER)
+					gui.ControlSetAutoscale(Intro04.base, gui.AUTOSCALE)
+					gui.PictureSetAnimation(Intro04, intro04Anim, false, 30)
 				} else if (key == app.KEYCODE_ENTER && action == app.KEY_PRESS && mods == app.MOD_NONE) {
 					g_screens[screen].paused = true
 					var onEnter ScreenId = g_screens[screen].on_enter
@@ -472,6 +484,14 @@ func ProcessEvent(event *app.Event) () {
 					app.ToggleFullscreen()
 				}
 			}
+			if (key == app.KEYCODE_ESCAPE && action == app.KEY_PRESS && mods == app.MOD_NONE) {
+					g_screens[screen].paused = true
+					gui.ControlSetBounds(Intro04.base, v4.make(0.0, 0.0, gfx.gfx_width, gfx.gfx_height))
+					gui.ControlSetAlign(Intro04.base, gui.ALIGN_CENTER)
+					gui.PictureSetAlign(Intro04, gui.ALIGN_CENTER)
+					gui.ControlSetAutoscale(Intro04.base, gui.AUTOSCALE)
+					gui.PictureSetAnimation(Intro04, intro04Anim, false, 30)
+				} 
 		}
 	}
 }
